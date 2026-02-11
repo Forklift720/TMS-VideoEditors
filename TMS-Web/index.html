@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>TMS - Video Factory</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #toolbar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      box-sizing: border-box;
+      background: #2b2b2b;
+      color: #ffffff;
+    }
+
+    #toolbar button {
+      cursor: pointer;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 4px;
+      background: #4a4a4a;
+      color: #fff;
+    }
+
+    #toolbar button:hover {
+      background: #5a5a5a;
+    }
+
+    #status {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-left: auto;
+    }
+
+    #webview {
+      width: 100%;
+      height: calc(100% - 42px);
+      border: 0;
+      display: block;
+      background: #1e1e1e;
+    }
+  </style>
+
+  <!-- CEP -->
+  <script src="CSInterface.js"></script>
+  <script>
+    const TARGET_URL = "https://tms-videofactory.com/";
+
+    function setStatus(msg) {
+      const el = document.getElementById("status");
+      if (el) el.textContent = msg || "";
+    }
+
+    function loadInPanel() {
+      const frame = document.getElementById("webview");
+      setStatus("Loading in panel…");
+      frame.src = TARGET_URL;
+    }
+
+    function reloadPanel() {
+      const frame = document.getElementById("webview");
+      try {
+        frame.contentWindow.location.reload();
+      } catch (e) {
+        // If cross-origin prevents reload access, just re-set src
+        frame.src = TARGET_URL;
+      }
+      setStatus("Reloading…");
+    }
+
+    function openExternal() {
+      // Opens in default browser
+      try {
+        const cs = new CSInterface();
+        cs.openURLInDefaultBrowser(TARGET_URL);
+      } catch (e) {
+        // fallback
+        window.open(TARGET_URL, "_blank");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const frame = document.getElementById("webview");
+
+      frame.addEventListener("load", () => setStatus("Loaded."));
+      frame.addEventListener("error", () => setStatus("Failed to load (iframe might be blocked)."));
+
+      loadInPanel();
+    });
+  </script>
+</head>
+
+<body>
+  <div id="toolbar">
+    <button onclick="loadInPanel()">Home</button>
+    <button onclick="reloadPanel()">Reload</button>
+    <button onclick="openExternal()">Open in browser</button>
+    <div id="status"></div>
+  </div>
+
+  <iframe id="webview" src="about:blank"></iframe>
+</body>
+</html>
